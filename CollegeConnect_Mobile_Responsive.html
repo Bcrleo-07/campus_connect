@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CollegeConnect - College Event Management</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+body{background:#f3f6fb;color:#222}
+header{background:linear-gradient(135deg,#173b7a,#315ca8);color:#fff;text-align:center;padding:30px 15px}
+header h1{font-size:36px;margin-bottom:8px}
+header p{font-size:15px}
+nav{background:#fff;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.15);position:sticky;top:0;z-index:100}
+nav button{border:0;background:#173b7a;color:#fff;padding:11px 17px;margin:4px;border-radius:7px;cursor:pointer}
+nav button:hover{background:#0d2b5e}
+.container{width:95%;max-width:1100px;margin:25px auto}
+.page{display:none}.page.active{display:block}
+.card{background:#fff;padding:25px;border-radius:12px;margin-bottom:20px;box-shadow:0 3px 15px rgba(0,0,0,.08)}
+h2{color:#173b7a;margin-bottom:18px} h3{color:#173b7a;margin-bottom:10px}
+.hero{text-align:center;padding:40px 25px}.hero h2{font-size:30px}.hero p{line-height:1.7}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:25px}
+.feature{background:#eef3ff;padding:20px;border-radius:10px;text-align:center}
+label{display:block;font-weight:bold;margin-top:10px}
+input,select,textarea{width:100%;padding:12px;margin:7px 0 14px;border:1px solid #ccc;border-radius:7px;font-size:15px}
+textarea{min-height:100px;resize:vertical}
+button{font-size:14px}.primary,.green,.red,.gray{border:0;color:#fff;padding:11px 17px;border-radius:7px;cursor:pointer;margin:3px}
+.primary{background:#173b7a}.primary:hover{background:#0d2b5e}
+.green{background:#188038}.red{background:#d93025}.gray{background:#666}
+.message{margin-top:15px;padding:12px;border-radius:7px;display:none}
+.message.success{display:block;background:#e7f5e9;color:#137333}
+.message.error{display:block;background:#ffe8e8;color:#c5221f}
+.event-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.event-card{background:#fff;padding:20px;border-radius:12px;box-shadow:0 3px 12px rgba(0,0,0,.09)}
+.event-details{line-height:1.9;margin:12px 0}.qr-box{background:#f5f5f5;padding:15px;margin-top:15px;border-radius:8px;text-align:center}
+.qr-code{display:flex;justify-content:center;margin:15px}
+.admin-event{border:1px solid #ddd;padding:18px;margin-bottom:15px;border-radius:9px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}
+.stat{background:#eef3ff;padding:20px;border-radius:10px;text-align:center}
+.stat strong{display:block;font-size:30px;color:#173b7a;margin-bottom:5px}
+.table-container{overflow-x:auto}table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #ddd;padding:10px;text-align:left}th{background:#173b7a;color:#fff}
+.hidden{display:none!important}
+.badge{display:inline-block;padding:6px 10px;border-radius:20px;background:#e7f5e9;color:#137333;font-size:13px;margin:4px}
+footer{background:#173b7a;color:#fff;text-align:center;padding:25px;margin-top:30px;line-height:1.8}
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width:750px){
+  body{font-size:14px;overflow-x:hidden}
+  header{padding:22px 12px}
+  header h1{font-size:26px;line-height:1.25}
+  header p{font-size:13px;line-height:1.5}
+
+  nav{
+    padding:8px 6px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:6px;
+  }
+  nav button{width:100%;margin:0;padding:10px 6px;font-size:13px}
+
+  .container{width:94%;margin:16px auto}
+  .card{padding:16px;margin-bottom:15px;border-radius:10px}
+  h2{font-size:21px;margin-bottom:14px}
+  h3{font-size:17px}
+
+  .hero{padding:25px 15px}
+  .hero h2{font-size:24px}
+  .hero p{font-size:14px;line-height:1.65}
+
+  .features,.event-grid,.stats{grid-template-columns:1fr;gap:12px}
+  .feature{padding:16px}
+  .event-card{padding:15px}
+  .event-details{line-height:1.75;font-size:14px}
+
+  input,select,textarea{
+    font-size:16px;
+    padding:12px;
+    margin:6px 0 12px;
+  }
+
+  .primary,.green,.red,.gray{padding:11px 13px;font-size:14px}
+
+  .qr-box{padding:12px}
+  .qr-code{margin:12px 0}
+  .qr-code img,.qr-code canvas{max-width:100%;height:auto!important}
+
+  .stat{padding:15px}
+  .stat strong{font-size:25px}
+
+  .admin-event{padding:14px}
+  .admin-event button{width:100%;margin:8px 0 0}
+
+  .table-container{
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    border-radius:7px;
+  }
+  table{min-width:760px;font-size:12px}
+  th,td{padding:8px;white-space:nowrap}
+
+  footer{padding:20px 12px;font-size:12px;line-height:1.7}
+}
+
+@media (max-width:420px){
+  header h1{font-size:23px}
+  header p{font-size:12px}
+  nav{grid-template-columns:1fr 1fr}
+  nav button{font-size:12px;padding:9px 4px}
+  .container{width:92%}
+  .card{padding:14px}
+  h2{font-size:19px}
+  .hero h2{font-size:22px}
+  .primary,.green,.red,.gray{width:100%;margin:4px 0}
+  .feature h3{font-size:16px}
+  .event-card h3{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🎓 CollegeConnect</h1>
+<p>College Events, Celebrations & Registrations — All in One Platform</p>
+</header>
+
+<nav>
+<button onclick="showPage('home')">🏠 Home</button>
+<button onclick="showPage('events')">📅 Events</button>
+<button onclick="showPage('student')">👨‍🎓 Student</button>
+<button onclick="showPage('register')">📝 Register</button>
+<button onclick="showPage('admin')">👨‍💼 Admin</button>
+</nav>
+
+<div class="container">
+
+<section id="home" class="page active">
+<div class="card hero">
+<h2>Welcome to CollegeConnect 🎓</h2>
+<p>CollegeConnect is a college event management system that helps students view events, create an account, login, register for events and allows administrators to manage events and registrations.</p>
+<div class="features">
+<div class="feature"><h3>📅 Events</h3><p>View all upcoming college events.</p></div>
+<div class="feature"><h3>📱 QR Registration</h3><p>Use the event QR code to open registration.</p></div>
+<div class="feature"><h3>👨‍💼 Admin</h3><p>Manage events and view registrations.</p></div>
+</div>
+</div>
+</section>
+
+<section id="events" class="page">
+<div class="card"><h2>📅 Upcoming College Events</h2><div id="eventList" class="event-grid"></div></div>
+</section>
+
+<section id="student" class="page">
+<div class="card" id="studentLoginBox">
+<h2>👨‍🎓 Student Login</h2>
+<label>Email</label><input type="email" id="studentLoginEmail" placeholder="Enter your email">
+<label>Password</label><input type="password" id="studentLoginPassword" placeholder="Enter password">
+<button class="primary" onclick="studentLogin()">Login</button>
+<button class="gray" onclick="showStudentSignup()">Create Account</button>
+<div id="studentLoginMessage" class="message"></div>
+</div>
+
+<div class="card hidden" id="studentSignupBox">
+<h2>📝 Student Sign Up</h2>
+<label>Student Name</label><input type="text" id="signupName" placeholder="Enter your name">
+<label>Register Number</label><input type="text" id="signupRegno" placeholder="Enter register number">
+<label>Department</label>
+<select id="signupDepartment"><option value="">Select Department</option>
+<option>Information Technology</option><option>Computer Science Engineering</option>
+<option>Artificial Intelligence and Data Science</option><option>Electronics and Communication Engineering</option>
+<option>Electrical and Electronics Engineering</option><option>Mechanical Engineering</option></select>
+<label>Email</label><input type="email" id="signupEmail" placeholder="Enter email">
+<label>Password</label><input type="password" id="signupPassword" placeholder="Create password">
+<button class="primary" onclick="studentSignup()">Create Account</button>
+<button class="gray" onclick="showStudentLogin()">Back to Login</button>
+<div id="signupMessage" class="message"></div>
+</div>
+
+<div class="card hidden" id="studentDashboard">
+<h2>👋 Student Dashboard</h2>
+<div id="studentWelcome"></div>
+<br>
+<h3>My Registrations</h3>
+<div id="myRegistrations"></div>
+<br>
+<button class="primary" onclick="showPage('events')">View Events</button>
+<button class="gray" onclick="studentLogout()">Logout</button>
+</div>
+</section>
+
+<section id="register" class="page">
+<div class="card">
+<h2>📝 Event Registration</h2>
+<form id="registrationForm">
+<label>Student Name</label><input type="text" id="regStudentName" required>
+<label>Register Number</label><input type="text" id="regRegisterNumber" required>
+<label>Department</label>
+<select id="regDepartment" required><option value="">Select Department</option>
+<option>Information Technology</option><option>Computer Science Engineering</option>
+<option>Artificial Intelligence and Data Science</option><option>Electronics and Communication Engineering</option>
+<option>Electrical and Electronics Engineering</option><option>Mechanical Engineering</option></select>
+<label>Email</label><input type="email" id="regEmail" required>
+<label>Select Event</label><select id="regEvent" required><option value="">Select Event</option></select>
+<button type="submit" class="primary">Submit Registration</button>
+</form>
+<div id="registrationMessage" class="message"></div>
+</div>
+</section>
+
+<section id="admin" class="page">
+<div class="card" id="adminLoginBox">
+<h2>👨‍💼 Admin Login</h2>
+<label>Username</label><input type="text" id="adminUsername" placeholder="Enter username">
+<label>Password</label><input type="password" id="adminPassword" placeholder="Enter password">
+<button class="primary" onclick="adminLogin()">Login</button>
+<div id="adminLoginMessage" class="message"></div>
+<p style="margin-top:15px">Demo Login: <b>admin</b> / <b>1234</b></p>
+</div>
+
+<div class="hidden" id="adminDashboard">
+<div class="stats">
+<div class="stat"><strong id="totalEvents">0</strong>Events</div>
+<div class="stat"><strong id="totalRegistrations">0</strong>Registrations</div>
+<div class="stat"><strong id="totalStudents">0</strong>Students</div>
+</div>
+
+<div class="card">
+<h2>➕ Add New Event</h2>
+<label>Event Name</label><input type="text" id="eventName" placeholder="Example: Annual Sports Day">
+<label>Date</label><input type="date" id="eventDate">
+<label>Time</label><input type="time" id="eventTime">
+<label>Venue</label><input type="text" id="eventVenue" placeholder="Example: College Ground">
+<label>Description</label><textarea id="eventDescription" placeholder="Enter event description"></textarea>
+<button class="primary" onclick="addEvent()">Add Event</button>
+<div id="addEventMessage" class="message"></div>
+</div>
+
+<div class="card"><h2>🗓️ Manage Events</h2><div id="adminEventList"></div></div>
+
+<div class="card">
+<h2>👥 Student Registrations</h2>
+<input type="text" id="searchRegistration" placeholder="🔍 Search student, register number or event..." onkeyup="displayRegistrations()">
+<div class="table-container"><table>
+<thead><tr><th>Student Name</th><th>Register Number</th><th>Department</th><th>Email</th><th>Event</th><th>Date</th></tr></thead>
+<tbody id="registrationTable"></tbody>
+</table></div>
+<br><button class="gray" onclick="adminLogout()">Logout</button>
+</div>
+</div>
+</section>
+</div>
+
+<footer>
+<p>© 2026 CollegeConnect 🎓</p>
+<p>Information Technology Department</p>
+<p>Team: Gunal .S | Nithish Giri .S | Neethin .K | Jawahar .M | Kaviya .D</p>
+</footer>
+
+<script>
+const departments=[
+"Information Technology","Computer Science Engineering",
+"Artificial Intelligence and Data Science","Electronics and Communication Engineering",
+"Electrical and Electronics Engineering","Mechanical Engineering"
+];
+
+let events=JSON.parse(localStorage.getItem("collegeEvents")||"null")||[
+{id:1,name:"Annual Sports Day",date:"25-09-2026",time:"09:00 AM",venue:"College Sports Ground",
+description:"Annual Sports Day is a college sports event where students can participate in various indoor and outdoor sports activities and competitions."},
+{id:2,name:"Technical Symposium",date:"05-10-2026",time:"10:00 AM",venue:"Seminar Hall",
+description:"A technical event with project presentations, coding activities and technical competitions."}
+];
+let students=JSON.parse(localStorage.getItem("collegeStudents")||"[]");
+let registrations=JSON.parse(localStorage.getItem("collegeRegistrations")||"[]");
+
+localStorage.setItem("collegeEvents",JSON.stringify(events));
+
+function saveAll(){
+ localStorage.setItem("collegeEvents",JSON.stringify(events));
+ localStorage.setItem("collegeStudents",JSON.stringify(students));
+ localStorage.setItem("collegeRegistrations",JSON.stringify(registrations));
+}
+
+function showPage(id){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ if(id==="events") displayEvents();
+ if(id==="register"){loadRegistrationEvents();prefillRegistration();}
+ if(id==="student") refreshStudentPage();
+ if(id==="admin" && sessionStorage.getItem("adminLoggedIn")==="true") showAdminDashboard();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function escapeHTML(v){
+ return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+function formatDate(v){
+ const d=new Date(v+"T00:00:00");
+ return d.toLocaleDateString("en-GB");
+}
+function formatTime(v){
+ let [h,m]=v.split(":").map(Number), ap=h>=12?"PM":"AM"; h=h%12||12;
+ return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+" "+ap;
+}
+function showMessage(id,msg,type){
+ const el=document.getElementById(id); el.textContent=msg;
+ el.className="message "+type;
+ setTimeout(()=>{el.className="message";},3500);
+}
+
+function displayEvents(){
+ const list=document.getElementById("eventList"); list.innerHTML="";
+ if(!events.length){list.innerHTML="<p>No events available.</p>";return}
+ events.forEach(event=>{
+  const card=document.createElement("div");card.className="event-card";
+  card.innerHTML=`<h3>🎉 ${escapeHTML(event.name)}</h3>
+  <div class="event-details"><b>📅 Date:</b> ${escapeHTML(event.date)}<br>
+  <b>⏰ Time:</b> ${escapeHTML(event.time)}<br><b>📍 Venue:</b> ${escapeHTML(event.venue)}<br>
+  <b>📝 Description:</b><br>${escapeHTML(event.description)}</div>
+  <div class="qr-box"><h3>📱 Scan to Register</h3><div class="qr-code" id="qr-${event.id}"></div>
+  <button class="primary" onclick="openEventRegistration(${event.id})">Register Now</button></div>`;
+  list.appendChild(card);
+ });
+ events.forEach(event=>{
+  const qr=document.getElementById("qr-"+event.id); if(!qr)return;
+  qr.innerHTML="";
+  const url=window.location.href.split("#")[0]+"#event="+event.id;
+  new QRCode(qr,{text:url,width:180,height:180});
+ });
+}
+
+function openEventRegistration(id){
+ showPage("register");
+ setTimeout(()=>document.getElementById("regEvent").value=String(id),100);
+}
+
+function loadRegistrationEvents(){
+ const select=document.getElementById("regEvent");
+ select.innerHTML='<option value="">Select Event</option>';
+ events.forEach(e=>{
+  const o=document.createElement("option");o.value=e.id;o.textContent=e.name;select.appendChild(o);
+ });
+}
+
+function prefillRegistration(){
+ const email=sessionStorage.getItem("studentEmail");
+ const s=students.find(x=>x.email.toLowerCase()===String(email||"").toLowerCase());
+ if(!s)return;
+ document.getElementById("regStudentName").value=s.name;
+ document.getElementById("regRegisterNumber").value=s.regno;
+ document.getElementById("regDepartment").value=s.department;
+ document.getElementById("regEmail").value=s.email;
+}
+
+document.getElementById("registrationForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const name=document.getElementById("regStudentName").value.trim();
+ const regno=document.getElementById("regRegisterNumber").value.trim();
+ const department=document.getElementById("regDepartment").value;
+ const email=document.getElementById("regEmail").value.trim().toLowerCase();
+ const eventId=document.getElementById("regEvent").value;
+ const event=events.find(x=>String(x.id)===String(eventId));
+ if(!event){showMessage("registrationMessage","Please select a valid event.","error");return}
+ if(registrations.some(r=>r.regno.toLowerCase()===regno.toLowerCase()&&String(r.eventId)===String(eventId))){
+  showMessage("registrationMessage","You have already registered for this event.","error");return;
+ }
+ registrations.push({id:Date.now(),name,regno,department,email,eventId:String(eventId),
+ eventName:event.name,registeredAt:new Date().toLocaleString()});
+ saveAll();
+ showMessage("registrationMessage","✅ Registration successful for "+event.name+"!","success");
+ document.getElementById("registrationForm").reset();
+ prefillRegistration();
+});
+
+function showStudentSignup(){
+ document.getElementById("studentLoginBox").classList.add("hidden");
+ document.getElementById("studentSignupBox").classList.remove("hidden");
+}
+function showStudentLogin(){
+ document.getElementById("studentSignupBox").classList.add("hidden");
+ document.getElementById("studentLoginBox").classList.remove("hidden");
+}
+
+function studentSignup(){
+ const name=document.getElementById("signupName").value.trim();
+ const regno=document.getElementById("signupRegno").value.trim();
+ const department=document.getElementById("signupDepartment").value;
+ const email=document.getElementById("signupEmail").value.trim().toLowerCase();
+ const password=document.getElementById("signupPassword").value;
+ if(!name||!regno||!department||!email||!password){
+  showMessage("signupMessage","Please fill all details.","error");return;
+ }
+ if(password.length<4){showMessage("signupMessage","Password must contain at least 4 characters.","error");return}
+ if(students.some(s=>s.email.toLowerCase()===email)){
+  showMessage("signupMessage","This email already has an account.","error");return;
+ }
+ if(students.some(s=>s.regno.toLowerCase()===regno.toLowerCase())){
+  showMessage("signupMessage","This register number is already registered.","error");return;
+ }
+ students.push({id:Date.now(),name,regno,department,email,password});
+ saveAll();
+ document.getElementById("signupName").value="";
+ document.getElementById("signupRegno").value="";
+ document.getElementById("signupDepartment").value="";
+ document.getElementById("signupEmail").value="";
+ document.getElementById("signupPassword").value="";
+ showStudentLogin();
+ document.getElementById("studentLoginEmail").value=email;
+ showMessage("studentLoginMessage","✅ Account created. Now login.","success");
+}
+
+function studentLogin(){
+ const email=document.getElementById("studentLoginEmail").value.trim().toLowerCase();
+ const password=document.getElementById("studentLoginPassword").value;
+ const s=students.find(x=>x.email.toLowerCase()===email&&x.password===password);
+ if(!s){showMessage("studentLoginMessage","❌ Invalid email or password.","error");return}
+ sessionStorage.setItem("studentEmail",s.email);
+ refreshStudentPage();
+ showMessage("studentLoginMessage","Login successful!","success");
+}
+
+function refreshStudentPage(){
+ const email=sessionStorage.getItem("studentEmail");
+ const s=students.find(x=>x.email.toLowerCase()===String(email||"").toLowerCase());
+ if(!s){
+  document.getElementById("studentLoginBox").classList.remove("hidden");
+  document.getElementById("studentSignupBox").classList.add("hidden");
+  document.getElementById("studentDashboard").classList.add("hidden");return;
+ }
+ document.getElementById("studentLoginBox").classList.add("hidden");
+ document.getElementById("studentSignupBox").classList.add("hidden");
+ document.getElementById("studentDashboard").classList.remove("hidden");
+ document.getElementById("studentWelcome").innerHTML=
+ `<b>Welcome, ${escapeHTML(s.name)}! 👋</b><br>Register Number: ${escapeHTML(s.regno)}<br>Department: ${escapeHTML(s.department)}<br>Email: ${escapeHTML(s.email)}`;
+ const mine=registrations.filter(r=>r.email.toLowerCase()===s.email.toLowerCase());
+ document.getElementById("myRegistrations").innerHTML=mine.length?
+ mine.map(r=>`<span class="badge">🎫 ${escapeHTML(r.eventName)} — ${escapeHTML(r.registeredAt)}</span>`).join(""):
+ "<p>No event registrations yet.</p>";
+}
+function studentLogout(){sessionStorage.removeItem("studentEmail");refreshStudentPage();showPage("student")}
+
+function adminLogin(){
+ const u=document.getElementById("adminUsername").value.trim();
+ const p=document.getElementById("adminPassword").value;
+ if(u==="admin"&&p==="1234"){
+  sessionStorage.setItem("adminLoggedIn","true");showAdminDashboard();
+ }else showMessage("adminLoginMessage","❌ Invalid username or password.","error");
+}
+function showAdminDashboard(){
+ document.getElementById("adminLoginBox").classList.add("hidden");
+ document.getElementById("adminDashboard").classList.remove("hidden");
+ displayAdminEvents();displayRegistrations();updateStatistics();
+}
+function adminLogout(){
+ sessionStorage.removeItem("adminLoggedIn");
+ document.getElementById("adminDashboard").classList.add("hidden");
+ document.getElementById("adminLoginBox").classList.remove("hidden");
+}
+
+function addEvent(){
+ const name=document.getElementById("eventName").value.trim();
+ const date=document.getElementById("eventDate").value;
+ const time=document.getElementById("eventTime").value;
+ const venue=document.getElementById("eventVenue").value.trim();
+ const description=document.getElementById("eventDescription").value.trim();
+ if(!name||!date||!time||!venue||!description){
+  showMessage("addEventMessage","Please fill all event details.","error");return;
+ }
+ events.push({id:Date.now(),name,date:formatDate(date),time:formatTime(time),venue,description});
+ saveAll();
+ ["eventName","eventDate","eventTime","eventVenue","eventDescription"].forEach(id=>document.getElementById(id).value="");
+ showMessage("addEventMessage","✅ Event added successfully!","success");
+ displayAdminEvents();updateStatistics();
+}
+
+function displayAdminEvents(){
+ const box=document.getElementById("adminEventList");box.innerHTML="";
+ if(!events.length){box.innerHTML="<p>No events.</p>";return}
+ events.forEach(e=>{
+  const count=registrations.filter(r=>String(r.eventId)===String(e.id)).length;
+  const div=document.createElement("div");div.className="admin-event";
+  div.innerHTML=`<h3>🎉 ${escapeHTML(e.name)}</h3>
+  <p>📅 ${escapeHTML(e.date)} | ⏰ ${escapeHTML(e.time)} | 📍 ${escapeHTML(e.venue)}</p>
+  <p style="margin:8px 0">${escapeHTML(e.description)}</p>
+  <span class="badge">👥 ${count} registration(s)</span>
+  <button class="red" onclick="deleteEvent(${e.id})">Delete Event</button>`;
+  box.appendChild(div);
+ });
+}
+function deleteEvent(id){
+ const e=events.find(x=>x.id===id);
+ if(!e)return;
+ if(!confirm("Delete "+e.name+"?"))return;
+ events=events.filter(x=>x.id!==id);
+ registrations=registrations.filter(r=>String(r.eventId)!==String(id));
+ saveAll();displayAdminEvents();displayRegistrations();updateStatistics();
+}
+function displayRegistrations(){
+ const q=document.getElementById("searchRegistration").value.trim().toLowerCase();
+ const tbody=document.getElementById("registrationTable");tbody.innerHTML="";
+ const rows=registrations.filter(r=>
+ [r.name,r.regno,r.department,r.email,r.eventName].some(v=>String(v).toLowerCase().includes(q))
+ );
+ if(!rows.length){tbody.innerHTML='<tr><td colspan="6">No registrations found.</td></tr>';return}
+ rows.forEach(r=>{
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td>${escapeHTML(r.name)}</td><td>${escapeHTML(r.regno)}</td>
+  <td>${escapeHTML(r.department)}</td><td>${escapeHTML(r.email)}</td>
+  <td>${escapeHTML(r.eventName)}</td><td>${escapeHTML(r.registeredAt)}</td>`;
+  tbody.appendChild(tr);
+ });
+}
+function updateStatistics(){
+ document.getElementById("totalEvents").textContent=events.length;
+ document.getElementById("totalRegistrations").textContent=registrations.length;
+ document.getElementById("totalStudents").textContent=students.length;
+}
+
+window.addEventListener("load",()=>{
+ if(location.hash.startsWith("#event=")){
+  const id=location.hash.split("=")[1];showPage("register");
+  setTimeout(()=>document.getElementById("regEvent").value=id,100);
+ }else displayEvents();
+ if(sessionStorage.getItem("studentEmail")) refreshStudentPage();
+ if(sessionStorage.getItem("adminLoggedIn")==="true") showAdminDashboard();
+});
+</script>
+</body>
+</html>
